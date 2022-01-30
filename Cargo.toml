@@ -1,8 +1,11 @@
 [package]
 name = "rust-static-analysis"
 version = "0.1.0"
-edition = "2018"
-
+edition = "2022"
+authors = "Jacob Bas"
+description = "Python static code analysis tool to help with showing relationships within code"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+tree-sitter="*"        # https://lib.rs/crates/tree-sitter
+tree-sitter-python="*" # https://lib.rs/crates/tree-sitter-python
