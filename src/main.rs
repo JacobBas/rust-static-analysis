@@ -8,12 +8,13 @@ fn main() {
         .set_language(tree_sitter_python::language())
         .expect("Error loading Python grammar");
 
-    // going to want to loop through the files in a directory
-    // also going to want to make a final data struture to hand
-    // off at the end. It will be mutable.
+    // need to loop through file
+    let mut _function_tree: Vec<FuncDesc>;
     analyze_file("test.py", &mut parser);
 }
 
+
+// TODO eventually going to want this to return Vec<FuncDesc>
 fn analyze_file(file_path: &str, parser: &mut Parser) {
     // defining the code that we want to parse
     let source = fs::read_to_string(file_path).expect("something went wrong with reading the file");
@@ -81,3 +82,12 @@ fn analyze_file(file_path: &str, parser: &mut Parser) {
         cond = source_cursor.goto_next_sibling();
     }
 }
+
+struct FuncDesc {
+    name: String,
+    called_by: Vec<String>,
+    called: Vec<String>,
+}
+
+// TODO eventually needs to return FuncDesc
+fn analyze_function() {}
