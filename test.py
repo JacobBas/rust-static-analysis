@@ -24,6 +24,7 @@ def addition(a, b):
     """adds two numbers together"""
     return a + b
 
+
 def function_print():
     """just a function that is run randomly"""
     print("inside a new function")

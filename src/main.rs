@@ -20,9 +20,64 @@ fn analyze_file(file_path: &str, parser: &mut Parser) {
 
     // parsing the source code we are just borrowing this value so that we can use it
     // later on within the code
-    let tree = parser.parse(&source, None);
+    let source_tree = parser.parse(&source, None).unwrap();
+    let source_root = source_tree.root_node();
+    let mut source_cursor = source_root.walk();
 
-    // printing out the results
-    println!("{}", source);
-    println!("{:?}", tree);
+    // looping through all of the items of the tree
+    let mut cond = source_cursor.goto_first_child();
+    while cond {
+        // pulling out the node to it's own variable
+        let node = source_cursor.node();
+
+        // only want to look through the function definitions
+        if node.kind() == "function_definition" {
+            // the name of the function will always be child at index 1
+            let name = &source[node.child(1).unwrap().byte_range()];
+            println!("{}:", name);
+
+            // walking through the block of the function
+            let block = node.child(4).unwrap();
+            let mut block_cursor = block.walk();
+            let mut walk_cond = block_cursor.goto_first_child();
+
+            while walk_cond {
+                match block_cursor.node().kind() {
+                    // handling the return_statement structure
+                    "return_statement" => {
+                        let call = block_cursor.node().child(1).unwrap();
+                        if call.kind() == "call" {
+                            let call_name = &source[call.child(0).unwrap().byte_range()];
+                            println!("  return_call: {}", call_name);
+                        }
+                    }
+                    // handlig the expression statement structure
+                    "expression_statement" => {
+                        let child = block_cursor.node().child(0).unwrap();
+                        match child.kind() {
+                            "call" => {
+                                let call_name = &source[child.child(0).unwrap().byte_range()];
+                                println!("  call:        {}", call_name);
+                            }
+                            "assignment" => {
+                                if child.child(2).unwrap().kind() == "call" {
+                                    let call_name = &source
+                                        [child.child(2).unwrap().child(0).unwrap().byte_range()];
+                                    println!("  assign_call: {}", call_name);
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    _ => {}
+                }
+
+                // going to the next node
+                walk_cond = block_cursor.goto_next_sibling()
+            }
+        }
+
+        // going to the next node
+        cond = source_cursor.goto_next_sibling();
+    }
 }
